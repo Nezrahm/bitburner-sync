@@ -1,0 +1,36 @@
+{
+  "name": "bitburner-sync",
+  "version": "1.0.0",
+  "description": "A tool used to upload your code to the game Bitburner",
+  "config": {
+    "bitburnerAuthToken": "",
+    "bitburnerScriptRoot": ""
+  },
+  "type": "module",
+  "bin": "./bin/cli.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Nezrahm/bitburner-sync"
+  },
+  "bugs": {
+    "url": "https://github.com/Nezrahm/bitburner-sync/issues"
+  },
+  "homepage": "https://github.com/Nezrahm/bitburner-sync#readme",
+  "keywords": [
+    "bitburner",
+    "sync"
+  ],
+  "author": "Nezrahm",
+  "license": "ISC",
+  "dependencies": {
+    "chalk": "^5.0.0",
+    "yargs": "^17.3.1",
+    "chokidar": "^3.5.3"
+  },
+  "devDependencies": {
+    "eslint": "^8.9.0"
+  }
+}

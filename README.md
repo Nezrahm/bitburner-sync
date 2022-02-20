@@ -8,11 +8,13 @@ NB: You must play the game via the Electron client (the Steam version) to be abl
 
 ## Install
 
-Install in your project via `npm install bitburner-sync`. It can be installed as a global tool  but it then looses the ability to be configured in package.json.
+Install in your project via `npm install bitburner-sync`.
+
+It can also be installed as a global tool via `npm install bitburner-sync -g`.
 
 ## Usage
 
-Can be used from the terminal. Use `bitburner-sync -help` for full information.
+Can be used from the terminal, then always prefix the calls with `npx`. Use `npx bitburner-sync -help` for full information.
 
 | Option     | Description                                                                                                                                                                                                                                  |
 |------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|

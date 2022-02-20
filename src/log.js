@@ -1,6 +1,6 @@
 import chalk from 'chalk';
 
-const l = console.log;
+const l = msg => console.log(`${new Date().toLocaleTimeString()} - ${msg}`);
 
 export const log = {
   info: message => l(message),

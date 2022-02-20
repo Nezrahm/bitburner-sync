@@ -1,6 +1,6 @@
 {
   "name": "bitburner-sync",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A tool used to upload your code to the game Bitburner",
   "config": {
     "bitburnerAuthToken": "",

@@ -14,34 +14,51 @@ It can also be installed as a global tool via `npm install bitburner-sync -g`.
 
 ## Usage
 
-Can be used from the terminal, then always prefix the calls with `npx`. Use `npx bitburner-sync -help` for full information.
+Can be used from the terminal, then always prefix the calls with `npx`. Use `npx bitburner-sync --help` for full information.
 
-| Option     | Description                                                                                                                                                                                                                                  |
-|------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| authToken  | The only required option, it can also be read from package.json. See the [VSCode extension](https://github.com/bitburner-official/bitburner-vscode) for information about how to retrieve it.                                                |
-| scriptRoot | The folder that you want to sync. Defaults to the current folder. The directory node_modules is ignored but any other valid game files are synced. It's highly recommended to do a dryRun first to list all the files that would be synced.  |
-| dryRun     | Doesn't sync the files, simply lists them in the terminal.                                                                                                                                                                                   |
-| watch      | Continuously monitor the scriptRoot for changes                                                                                                                                                                                              |
-| help       | Displays the full help                                                                                                                                                                                                                       |
+| Option     | Description                                                                                                                                                                                                                                 |
+|------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| authToken  | The only required option, it can also be read from package.json. See the [VSCode extension](https://github.com/bitburner-official/bitburner-vscode) for information about how to retrieve it.                                               |
+| scriptRoot | The folder that you want to sync. Defaults to the current folder. The directory node_modules is ignored but any other valid game files are synced. It's highly recommended to do a dryRun first to list all the files that would be synced. |
+| dryRun     | Doesn't sync the files, simply lists them in the terminal.                                                                                                                                                                                  |
+| watch      | Continuously monitor the scriptRoot for changes.                                                                                                                                                                                            |
+| help       | Displays the full help.                                                                                                                                                                                                                     |
 
 ### package.json
 
 It's recommended to be configured as a script that can then be invoked via `npm run sync` or similar.
 
 ```json
-"scripts": {
-  "sync": "bitburner-sync --watch"
+{
+  "scripts": {
+    "sync": "bitburner-sync --watch"
+  }
 }
 ```
 
 Optional config
 
-````json
-"config": {
-  "bitburnerAuthToken": "abc",
-  "bitburnerScriptRoot": "./dist"
+```json
+{
+  "config": {
+    "bitburnerAuthToken": "abc",
+    "bitburnerScriptRoot": "./dist"
+  }
 }
-````
+```
+
+### bitburner-sync.json
+
+This is another config file, if you prefer to have the config separate from the package.json file.
+
+NB: The config inside package.json will override this config if both are specified.
+
+```json
+{
+  "authToken": "abc",
+  "scriptRoot": "./dist"
+} 
+```
 
 ## Bitburner
 

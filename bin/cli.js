@@ -22,7 +22,7 @@ const args = yargs(hideBin(process.argv))
 
 const isDryRun = !!args.dryRun;
 const doWatch = !!args.watch;
-const pwd = path.resolve(process.env.PWD, args.scriptRoot);
+const pwd = path.resolve(process.cwd(), args.scriptRoot);
 const opts = {
   scriptRoot: pwd,
   authToken: args.authToken,

@@ -8,10 +8,10 @@ import { log } from './log.js';
 /***
  * Sync all files once
  * @param {SyncConfig} config
- * @param {Boolean} dryRun If set then will all files be listed instead of synced
+ * @param {boolean} dryRun If set then will all files be listed instead of synced
  */
 export const sync = (config, dryRun) => {
-  if (assertConfig(config) !== 0) return;
+  assertConfig(config);
 
   const fileMap = getAllGameFilesFromDirectory(config.scriptRoot);
   log.info(`Found ${fileMap.size} files to sync`);
@@ -30,12 +30,12 @@ export const sync = (config, dryRun) => {
  * @param {SyncConfig} config
  */
 export const watch = config => {
-  if (assertConfig(config) !== 0) return;
+  assertConfig(config);
 
   /***
    * Send a file to the game client
-   * @param {Boolean} isAdd
-   * @param {String} filename
+   * @param {boolean} isAdd
+   * @param {string} filename
    */
   const syncFile = (isAdd, filename) => {
     const fullPath = path.join(config.scriptRoot, filename);
@@ -73,21 +73,13 @@ export const watch = config => {
  * @param {SyncConfig} config
  */
 const assertConfig = config => {
-  if (typeof config.authToken !== 'string') {
-    log.error('AuthToken must be a string');
-    return -1;
-  }
+  if (typeof config.authToken !== 'string')
+    throw new Error('AuthToken must be a string');
 
-  if (config.authToken.length < 3) {
-    log.error('AuthToken is to short');
-    return -1;
-  }
+  if (config.authToken.length < 3)
+    throw new Error('AuthToken is too short');
 
-  if (!isDir(config.scriptRoot)) {
-    log.error(`'${config.scriptRoot}' is not a directory`);
-    return -1;
-  }
-
-  return 0;
+  if (!isDir(config.scriptRoot))
+    throw new Error(`'${config.scriptRoot}' is not a directory`);
 };
 

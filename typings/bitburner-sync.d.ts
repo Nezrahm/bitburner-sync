@@ -1,11 +1,17 @@
 interface SyncConfig {
-    scriptRoot: String;
-    authToken: String;
+    scriptRoot: string;
+    authToken: string;
 }
 
 interface UploadPayload {
     action: 'CREATE' | 'UPDATE' | 'UPSERT' | 'DELETE';
-    filename: String;
-    code?: String;
-    authToken: String;
+    filename: string;
+    code?: string;
+    authToken: string;
+}
+
+interface ConfigResult {
+    opts: SyncConfig;
+    doWatch: boolean;
+    isDryRun: boolean;
 }

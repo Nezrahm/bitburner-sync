@@ -24,8 +24,8 @@ export const getGameFileGlobs = () => bitburnerConfig
 
 /***
  * Upload all files
- * @param {Map<String, String>} fileToContentMap
- * @param {String} authToken
+ * @param {Map<string, string>} fileToContentMap
+ * @param {string} authToken
  */
 export const postFilesToBitburner = (fileToContentMap, authToken) => {
   for (const [filename, code] of fileToContentMap.entries()) {
@@ -85,7 +85,7 @@ const prepareFile = payload => {
 
   let filename = `${payload.filename}`.replace(/[\\|/]+/g, '/');
 
-  const haveFolder = /^[^/].+\//.test(filename);
+  const haveFolder = /^.+\//.test(filename);
   const hasInitialSlash = filename.startsWith('/');
 
   if (haveFolder && !hasInitialSlash)

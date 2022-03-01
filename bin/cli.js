@@ -1,21 +1,25 @@
 #!/usr/bin/env node
 
 import { getArgs } from '../src/config.js';
-import { sync, watch } from '../src/index.js';
+import { get, sync, watch } from '../src/index.js';
 import { log } from '../src/log.js';
 
-const main = () => {
-  const { doWatch, isDryRun, opts } = getArgs();
+const main = async () => {
+  const { doWatch, doGet, isDryRun, config } = getArgs();
 
   if (doWatch)
-    watch(opts);
+    watch(config);
+  else if (doGet)
+    await get(config, isDryRun);
   else
-    sync(opts, isDryRun);
+    await sync(config, isDryRun);
 };
 
 try {
-  main();
+  await main();
 } catch (e) {
   const msg = e && e.message ? e.message : e;
-  log.error(msg);
+
+  if (msg !== undefined)
+    log.error(msg);
 }

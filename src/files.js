@@ -1,6 +1,6 @@
 import fs from 'fs';
 import { join } from 'path';
-import { isValidGameFile } from './client.js';
+import { cleanUpFilename, isValidGameFile } from './client.js';
 
 /**
  * Check provided path to see if it resolves to a directory or not
@@ -56,12 +56,12 @@ const getFilesRecursively = path => {
   return [...files, ...getFiles(path)];
 };
 
-/***
- *
- * @param scriptRoot
- * @returns {Map<String, String>} A map with local filenames and content
+/**
+ * Retrieve all local files
+ * @param {string} scriptRoot
+ * @returns {Map<string, string>} A map with local filenames and content
  */
-export const getAllGameFilesFromDirectory = scriptRoot => {
+export const getAllLocalGameFilesFromDirectory = scriptRoot => {
   const filesURIs = getFilesRecursively(scriptRoot)
     .filter(isValidGameFile);
 
@@ -75,5 +75,26 @@ export const getAllGameFilesFromDirectory = scriptRoot => {
       new Map());
 };
 
-export const normalizeFileName = (filename, scriptRoot) =>
-  filename.substring(scriptRoot.length);
+/**
+ * Save a local file
+ * @param {string} scriptRoot
+ * @param {string} filename
+ * @param {string} code
+ */
+export const saveLocalFile = (scriptRoot, filename, code) => {
+  const fileURI = join(scriptRoot, filename);
+  fs.writeFileSync(fileURI, code);
+};
+
+/**
+ * Delete a local file
+ * @param {string} scriptRoot
+ * @param {string} filename
+ */
+export const deleteLocalFile = (scriptRoot, filename) => {
+  const fileURI = join(scriptRoot, filename);
+  fs.rmSync(fileURI);
+};
+
+const normalizeFileName = (filename, scriptRoot) =>
+  cleanUpFilename(filename.substring(scriptRoot.length));

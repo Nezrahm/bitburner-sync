@@ -1,17 +1,30 @@
 interface SyncConfig {
     scriptRoot: string;
     authToken: string;
-}
-
-interface UploadPayload {
-    action: 'CREATE' | 'UPDATE' | 'UPSERT' | 'DELETE';
-    filename: string;
-    code?: string;
-    authToken: string;
+    allowDelete: boolean;
 }
 
 interface ConfigResult {
-    opts: SyncConfig;
+    config: SyncConfig;
     doWatch: boolean;
+    doGet: boolean;
     isDryRun: boolean;
+}
+
+interface UploadPayload {
+    action: 'CREATE' | 'UPDATE' | 'UPSERT';
+    filename: string;
+    code: string;
+    authToken: string;
+}
+
+interface DeletePayload {
+    filename: string;
+    authToken: string;
+}
+
+interface BitburnerFiles {
+    filename: string;
+    code: string;
+    ramUsage: number;
 }

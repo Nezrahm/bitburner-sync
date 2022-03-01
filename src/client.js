@@ -5,7 +5,7 @@ const bitburnerConfig = {
   port: 9990,
   schema: 'http',
   url: 'localhost',
-  filePostURI: '/',
+  fileURI: '/',
   validFileExtensions: [
     '.js',
     '.script',
@@ -22,68 +22,224 @@ export const getGameFileGlobs = () => bitburnerConfig
   .validFileExtensions
   .map(ext => `**/*${ext}`);
 
-/***
- * Upload all files
- * @param {Map<string, string>} fileToContentMap
- * @param {string} authToken
- */
-export const postFilesToBitburner = (fileToContentMap, authToken) => {
-  for (const [filename, code] of fileToContentMap.entries()) {
-    postRequestToBitburner({
-      action: 'UPSERT',
-      filename,
-      code,
-      authToken,
-    });
-  }
-};
-
 /**
  * Make a POST request to the expected port of the game
  * @param {UploadPayload} payload The payload to send to the game client
  */
-export const postRequestToBitburner = payload => {
-  const file = prepareFile(payload);
+export const uploadFileToBitburner = payload => {
+  const file = prepareUploadFile(payload);
 
+  sendRequestToBitburner(
+    'POST',
+    file.blob,
+    payload.authToken,
+    (res, body) => {
+      switch (res.statusCode) {
+        case 200:
+          logMessage(false, file.filename, 'Uploaded', body);
+          break;
+        case 401:
+          logMessage(true, file.filename, 'Unauthorized', body);
+          break;
+        default:
+          logMessage(true, file.filename, 'Failed to push', body);
+          break;
+      }
+    });
+};
+
+/**
+ * Get all files from home
+ * @param {string} authToken
+ * @returns {Promise<BitburnerFiles[]>}
+ */
+export const getFilesFromBitburner = authToken => {
+  const deferred = getDeferred();
+
+  sendRequestToBitburner(
+    'GET',
+    '{}',
+    authToken,
+    (res, body) => {
+      if (body === 'not a script file') {
+        logMessage(true, undefined, 'The bitburner client is too old for retrieval', undefined);
+        deferred.reject();
+        return;
+      }
+
+      switch (res.statusCode) {
+        case 200: {
+          let json;
+
+          try {
+            json = JSON.parse(body);
+          } catch {
+            logMessage(true, undefined, 'Failed to parse files', body);
+            break;
+          }
+
+          if (json.success) {
+            deferred.resolve(json.data.files);
+            return;
+          }
+
+          logMessage(true, undefined, 'Failed while retrieving files', body);
+          break;
+        }
+        default:
+          logMessage(true, undefined, 'Failed to retrieve files', body);
+          break;
+      }
+
+      deferred.reject();
+    });
+
+  return deferred.promise;
+};
+
+/**
+ * Delete a file at bitburner
+ * @param {DeletePayload} payload
+ */
+export const deleteFileAtBitburner = payload => {
+  const file = prepareDeleteFile(payload);
+
+  sendRequestToBitburner(
+    'DELETE',
+    file.blob,
+    payload.authToken,
+    (res, body) => {
+      switch (res.statusCode) {
+        case 200:
+          logMessage(false, file.filename, 'Deleted', body);
+          break;
+        default:
+          logMessage(true, file.filename, 'Failed to delete', body);
+          break;
+      }
+    });
+};
+
+/**
+ * Log a message, parsing the body for additional information.
+ * @param {boolean} isError
+ * @param {string?} filename
+ * @param {string} message
+ * @param {string} body
+ */
+const logMessage = (isError, filename, message, body) => {
+  let json;
+
+  try {
+    json = JSON.parse(body);
+  } catch {
+    // NOOP
+  }
+
+  if (json === undefined) {
+    if (body && body !== 'written')
+      message += ` - ${body}`;
+  } else {
+    isError = json.success === undefined ? isError : !json.success;
+
+    if (json.msg !== undefined)
+      message += ` - ${json.msg}`;
+
+    if (json.data !== undefined) {
+      if (json.data.overwritten)
+        message += ', overwritten';
+
+      if (json.data.ramUsage !== undefined)
+        message += `, RAM usage: ${json.data.ramUsage}GB`;
+    }
+  }
+
+  if (filename) {
+    if (isError) log.fileError(filename, message);
+    else log.fileInfo(filename, message);
+  } else {
+    if (isError) log.error(message);
+    else log.info(message);
+  }
+};
+
+/**
+ * Used to handle responses
+ * @callback sendRequestToBitburner-callback
+ * @param {IncomingMessage} res The response object
+ * @param {string} body The response body
+ */
+
+/**
+ * Craft a http request and send it
+ * @param {'POST' | 'GET' | 'DELETE' } method
+ * @param {string} blob
+ * @param {string} authToken
+ * @param {sendRequestToBitburner-callback} responseHandler
+ */
+const sendRequestToBitburner = (method, blob, authToken, responseHandler) => {
   const options = {
     hostname: bitburnerConfig.url,
     port: bitburnerConfig.port,
-    path: bitburnerConfig.filePostURI,
-    method: 'POST',
+    path: bitburnerConfig.fileURI,
+    method,
     headers: {
       'Content-Type': 'application/json',
-      'Content-Length': file.blob.length,
-      Authorization: `Bearer ${payload.authToken}`,
+      'Content-Length': blob.length,
+      Authorization: `Bearer ${authToken}`,
     },
   };
 
   const req = http.request(options, res => {
-    res.on('data', chunk => {
-      const responseBody = Buffer.from(chunk).toString();
-      switch (res.statusCode) {
-        case 200:
-          // log.info(`${file.filename} has been uploaded!`);
-          break;
-        case 401:
-          log.error(`Failed to push ${file.filename} to the game!\n${responseBody}`);
-          break;
-        default:
-          log.error(`File failed to push, statusCode: ${res.statusCode} | message: ${responseBody}`);
-          break;
-      }
-    });
+    let body = '';
+    res.on('data', chunk => body += chunk.toString());
+    res.on('end', () => responseHandler(res, body));
   });
 
-  req.write(file.blob);
+  req.write(blob);
   req.end();
 };
 
-const prepareFile = payload => {
+/**
+ * Get prepared data for the request
+ * @param {UploadPayload} payload
+ * @returns {{filename: string, blob: string}}
+ */
+const prepareUploadFile = payload => {
+  const filename = cleanUpFilename(payload.filename);
+  const code = Buffer.from(payload.code).toString('base64');
+
+  return {
+    filename,
+    blob: JSON.stringify({ filename, code }),
+  };
+};
+
+/**
+ *
+ * @param {DeletePayload} payload
+ * @returns {{filename: string, blob: string}}
+ */
+const prepareDeleteFile = payload => {
+  const filename = cleanUpFilename(payload.filename);
+
+  return {
+    filename,
+    blob: JSON.stringify({ filename }),
+  };
+};
+
+/**
+ *
+ * @param {string} filename
+ * @returns {string}
+ */
+export const cleanUpFilename = (filename) => {
   // If the file is going to be in a directory, it NEEDS the leading `/`, i.e. `/my-dir/file.js`
   // If the file is standalone, it CAN NOT HAVE a leading slash, i.e. `file.js`
   // The game will not accept the file and/or have undefined behaviour otherwise...
 
-  let filename = `${payload.filename}`.replace(/[\\|/]+/g, '/');
+  filename = `${filename}`.replace(/[\\|/]+/g, '/');
 
   const haveFolder = /^.+\//.test(filename);
   const hasInitialSlash = filename.startsWith('/');
@@ -93,10 +249,14 @@ const prepareFile = payload => {
   else if (!haveFolder && hasInitialSlash)
     filename = filename.substring(1);
 
-  const code = Buffer.from(payload.code).toString('base64');
+  return filename;
+};
 
-  return {
-    filename,
-    blob: JSON.stringify({ filename, code }),
-  };
+const getDeferred = () => {
+  const deferred = {};
+  deferred.promise = new Promise((resolve, reject) => {
+    deferred.resolve = resolve;
+    deferred.reject = reject;
+  });
+  return deferred;
 };

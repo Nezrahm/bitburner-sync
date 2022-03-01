@@ -1,4 +1,5 @@
 {
   "scriptRoot": "",
-  "authToken": ""
+  "authToken": "",
+  "allowDelete": false
 }

@@ -20,6 +20,12 @@ const getConfig = () => {
       default: '',
       env: 'npm_package_config_bitburnerScriptRoot',
     },
+    allowDelete: {
+      doc: 'If the sync should be allowed to delete files from bitburner',
+      format: 'Boolean',
+      default: false,
+      env: 'npm_package_config_bitburnerAllowDelete',
+    },
   });
 
   const configPath = path.join(process.cwd(), configFileName);
@@ -43,10 +49,27 @@ export const getArgs = () => {
 
   const args = yargs(hideBin(process.argv))
     .strict()
-    .default('scriptRoot', config.get('scriptRoot'))
-    .default('authToken', config.get('authToken'))
+    .option('scriptRoot', {
+      describe: 'The local directory to sync with',
+      type: 'string',
+      default: config.get('scriptRoot'),
+    })
+    .option('authToken', {
+      describe: 'API authorization token',
+      type: 'string',
+      default: config.get('authToken'),
+    })
+    .option('allowDelete', {
+      describe: 'If the sync should be allowed to delete files',
+      type: 'boolean',
+      default: config.get('allowDelete'),
+    })
     .option('watch', {
       describe: 'To continuously watch the script root for changes',
+      type: 'boolean',
+    })
+    .option('get', {
+      describe: 'To get all files from the home server and save them in the script root',
       type: 'boolean',
     })
     .option('dryRun', {
@@ -56,17 +79,22 @@ export const getArgs = () => {
     .argv;
 
   const isDryRun = !!args.dryRun;
+  const allowDelete = !!args.allowDelete;
   const doWatch = !!args.watch;
-  const opts = {
-    scriptRoot: path.resolve(process.cwd(), args.scriptRoot),
-    authToken: args.authToken,
-  };
+  const doGet = !!args.get;
 
   if (isDryRun && doWatch) throw new Error('Cannot specify both dryRun and watch');
 
+  if (doGet && doWatch) throw new Error('Cannot specify both get and watch');
+
   return {
-    opts,
+    config: {
+      scriptRoot: path.resolve(process.cwd(), args.scriptRoot),
+      authToken: args.authToken,
+      allowDelete,
+    },
     doWatch,
+    doGet,
     isDryRun,
   };
 };

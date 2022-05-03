@@ -1,14 +1,14 @@
 import fs from 'fs';
-import { join } from 'path';
+import path from 'path';
 import { cleanUpFilename, isValidGameFile } from './client.js';
 
 /**
  * Check provided path to see if it resolves to a directory or not
- * @param {fs.PathLike} path The path to check
+ * @param {fs.PathLike} pathURI The path to check
  * @returns {boolean} Whether the path is a director or not
  */
-export const isDir = path => {
-  const stats = fs.statSync(path, { throwIfNoEntry: false });
+export const isDir = pathURI => {
+  const stats = fs.statSync(pathURI, { throwIfNoEntry: false });
   return stats !== undefined && stats.isDirectory();
 };
 
@@ -18,42 +18,42 @@ export const ignoredDirectories = [
 
 /**
  * Check provided path to see if it resolves to a file or not
- * @param {fs.PathLike} path The path to check
+ * @param {fs.PathLike} pathURI The path to check
  * @returns {boolean} Whether the path is a file or not
  */
-const isFile = path => fs.statSync(path).isFile();
+const isFile = pathURI => fs.statSync(pathURI).isFile();
 
 /**
  * Gets all the directory URIs for a given path
- * @param {fs.PathLike} path The path we want to extract directories from
+ * @param {fs.PathLike} pathURI The path we want to extract directories from
  * @returns {Array<fs.PathLike>} An array of directory paths
  */
-const getDirs = path => fs
-  .readdirSync(path)
+const getDirs = pathURI => fs
+  .readdirSync(pathURI)
   .filter(name => !ignoredDirectories.includes(name))
-  .map(name => join(path.toString(), name))
+  .map(name => path.join(pathURI.toString(), name))
   .filter(isDir);
 
 /**
  * Gets all the file URIs for a given path
- * @param {fs.PathLike} path The path we want to extract files from
+ * @param {fs.PathLike} pathURI The path we want to extract files from
  * @returns {Array<fs.PathLike>} An array of file paths
  */
-const getFiles = path => fs
-  .readdirSync(path)
-  .map(name => join(path.toString(), name))
+const getFiles = pathURI => fs
+  .readdirSync(pathURI)
+  .map(name => path.join(pathURI.toString(), name))
   .filter(isFile);
 
 /**
  * Recursively extract all the absolute file URIs for a given root directory
- * @param {fs.PathLike} path The root of the path we want to recursively extract all the file URIs from
+ * @param {fs.PathLike} pathURI The root of the path we want to recursively extract all the file URIs from
  * @returns {Array<fs.PathLike>} An array of fully qualified/absolute file URIs for the given root directory
  * and subdirectories
  */
-const getFilesRecursively = path => {
-  const dirs = getDirs(path.toString());
+const getFilesRecursively = pathURI => {
+  const dirs = getDirs(pathURI.toString());
   const files = dirs.flatMap(dir => getFilesRecursively(dir));
-  return [...files, ...getFiles(path)];
+  return [...files, ...getFiles(pathURI)];
 };
 
 /**
@@ -82,7 +82,9 @@ export const getAllLocalGameFilesFromDirectory = scriptRoot => {
  * @param {string} code
  */
 export const saveLocalFile = (scriptRoot, filename, code) => {
-  const fileURI = join(scriptRoot, filename);
+  const fileURI = path.join(scriptRoot, filename);
+  const pathURI = path.dirname(fileURI);
+  fs.mkdirSync(pathURI, { recursive: true });
   fs.writeFileSync(fileURI, code);
 };
 
@@ -92,7 +94,7 @@ export const saveLocalFile = (scriptRoot, filename, code) => {
  * @param {string} filename
  */
 export const deleteLocalFile = (scriptRoot, filename) => {
-  const fileURI = join(scriptRoot, filename);
+  const fileURI = path.join(scriptRoot, filename);
   fs.rmSync(fileURI);
 };
 

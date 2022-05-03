@@ -47,7 +47,7 @@ Optional config
   "config": {
     "bitburnerAuthToken": "abc",
     "bitburnerScriptRoot": "./dist",
-    "bitburnerAllowDelete": false
+    "bitburnerAllowDelete": "false"
   }
 }
 ```

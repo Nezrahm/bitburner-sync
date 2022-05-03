@@ -4,7 +4,7 @@ import { log } from './log.js';
 const bitburnerConfig = {
   port: 9990,
   schema: 'http',
-  url: 'localhost',
+  url: '127.0.0.1',
   fileURI: '/',
   validFileExtensions: [
     '.js',

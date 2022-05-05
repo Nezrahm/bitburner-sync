@@ -10,7 +10,6 @@ const bitburnerConfig = {
     '.js',
     '.script',
     '.ns',
-    '.txt',
   ],
 };
 

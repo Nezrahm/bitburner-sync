@@ -68,6 +68,7 @@ export const sync = async (config, dryRun) => {
         filename,
         code,
         authToken: config.authToken,
+        serverUrl: config.serverUrl
       });
   }
 
@@ -83,6 +84,7 @@ export const sync = async (config, dryRun) => {
       deleteFileAtBitburner({
         filename: file.filename,
         authToken: config.authToken,
+        serverUrl: config.serverUrl
       });
   }
 };
@@ -103,6 +105,7 @@ export const watch = config => {
       filename,
       code: contents,
       authToken: config.authToken,
+      serverUrl: config.serverUrl
     });
   };
 
@@ -110,6 +113,7 @@ export const watch = config => {
     deleteFileAtBitburner({
       filename,
       authToken: config.authToken,
+      serverUrl: config.serverUrl
     });
   };
 

@@ -2,6 +2,7 @@ interface SyncConfig {
     scriptRoot: string;
     authToken: string;
     allowDelete: boolean;
+    serverUrl: string;
 }
 
 interface ConfigResult {

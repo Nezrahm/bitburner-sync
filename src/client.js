@@ -32,6 +32,7 @@ export const uploadFileToBitburner = payload => {
     'POST',
     file.blob,
     payload.authToken,
+    payload.serverUrl,
     (res, body) => {
       switch (res.statusCode) {
         case 200:
@@ -52,13 +53,14 @@ export const uploadFileToBitburner = payload => {
  * @param {string} authToken
  * @returns {Promise<BitburnerFiles[]>}
  */
-export const getFilesFromBitburner = authToken => {
+export const getFilesFromBitburner = (authToken, serverUrl) => {
   const deferred = getDeferred();
 
   sendRequestToBitburner(
     'GET',
     '{}',
     authToken,
+    serverUrl,
     (res, body) => {
       if (body === 'not a script file') {
         logMessage(true, undefined, 'The bitburner client is too old for retrieval', undefined);
@@ -107,6 +109,7 @@ export const deleteFileAtBitburner = payload => {
     'DELETE',
     file.blob,
     payload.authToken,
+    payload.serverUrl,
     (res, body) => {
       switch (res.statusCode) {
         case 200:
@@ -176,9 +179,9 @@ const logMessage = (isError, filename, message, body) => {
  * @param {string} authToken
  * @param {sendRequestToBitburner-callback} responseHandler
  */
-const sendRequestToBitburner = (method, blob, authToken, responseHandler) => {
+const sendRequestToBitburner = (method, blob, authToken, serverUrl, responseHandler) => {
   const options = {
-    hostname: bitburnerConfig.url,
+    hostname: serverUrl || bitburnerConfig.url,
     port: bitburnerConfig.port,
     path: bitburnerConfig.fileURI,
     method,

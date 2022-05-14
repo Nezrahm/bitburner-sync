@@ -20,6 +20,7 @@ Can be used from the terminal, then always prefix the calls with `npx`. Use `npx
 |-------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | authToken               | The only required option, it can also be read from package.json. See the [VSCode extension](https://github.com/bitburner-official/bitburner-vscode) for information about how to retrieve it.                                               |
 | scriptRoot              | The folder that you want to sync. Defaults to the current folder. The directory node_modules is ignored but any other valid game files are synced. It's highly recommended to do a dryRun first to list all the files that would be synced. |
+| serverUrl               | The server to connect to (defaults to 127.0.0.1) |
 | allowDelete [^footnote] | If the sync (upload and retrieve) should be allowed to delete files at the target                                                                                                                                                           |
 | get [^footnote]         | Retrieve files from bitburner and store at scriptRoot                                                                                                                                                                                       |
 | dryRun                  | Doesn't sync the files, simply lists them in the terminal.                                                                                                                                                                                  |
@@ -47,7 +48,8 @@ Optional config
   "config": {
     "bitburnerAuthToken": "abc",
     "bitburnerScriptRoot": "./dist",
-    "bitburnerAllowDelete": "false"
+    "bitburnerAllowDelete": "false",
+    "bitburnerServerUrl": "127.0.0.1"
   }
 }
 ```
@@ -62,7 +64,8 @@ NB: The config inside package.json will override this config if both are specifi
 {
   "authToken": "abc",
   "scriptRoot": "./dist",
-  "allowDelete": false
+  "allowDelete": false,
+  "serverUrl": "127.0.0.1"
 } 
 ```
 

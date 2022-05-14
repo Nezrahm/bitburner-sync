@@ -26,6 +26,12 @@ const getConfig = () => {
       default: false,
       env: 'npm_package_config_bitburnerAllowDelete',
     },
+    serverUrl: {
+      doc: 'Connect to this Url',
+      format: 'String',
+      default: '127.0.0.1',
+      env: 'npm_package_config_bitburnerServerUrl',
+    },
   });
 
   const configPath = path.join(process.cwd(), configFileName);
@@ -64,6 +70,11 @@ export const getArgs = () => {
       type: 'boolean',
       default: config.get('allowDelete'),
     })
+    .option('serverUrl', {
+      describe: 'Server to connect to',
+      type: 'string',
+      default: config.get('serverUrl'),
+    })
     .option('watch', {
       describe: 'To continuously watch the script root for changes',
       type: 'boolean',
@@ -91,6 +102,7 @@ export const getArgs = () => {
     config: {
       scriptRoot: path.resolve(process.cwd(), args.scriptRoot),
       authToken: args.authToken,
+      serverUrl: args.serverUrl,
       allowDelete,
     },
     doWatch,

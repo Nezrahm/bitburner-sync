@@ -58,18 +58,18 @@ const getFilesRecursively = pathURI => {
 
 /**
  * Retrieve all local files
- * @param {string} scriptRoot
+ * @param {SyncConfig} config
  * @returns {Map<string, string>} A map with local filenames and content
  */
-export const getAllLocalGameFilesFromDirectory = scriptRoot => {
-  const filesURIs = getFilesRecursively(scriptRoot)
-    .filter(isValidGameFile);
+export const getAllLocalGameFilesFromDirectory = config => {
+  const filesURIs = getFilesRecursively(config.scriptRoot)
+    .filter(file => isValidGameFile(config.bitburner, file));
 
   return filesURIs
     .reduce(
       (fileMap, fileURI) => {
         const contents = fs.readFileSync(fileURI).toString();
-        const filename = normalizeFileName(fileURI.toString(), scriptRoot);
+        const filename = normalizeFileName(fileURI.toString(), config.scriptRoot);
         return fileMap.set(filename, contents);
       },
       new Map());

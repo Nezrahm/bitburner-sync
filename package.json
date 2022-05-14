@@ -22,6 +22,7 @@
   "author": "Nezrahm",
   "license": "ISC",
   "dependencies": {
+    "@types/yargs": "^17.0.10",
     "chalk": "^5.0.1",
     "yargs": "^17.5.0",
     "chokidar": "^3.5.3",

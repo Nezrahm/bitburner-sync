@@ -1,8 +1,16 @@
-interface SyncConfig {
-    scriptRoot: string;
+interface BitburnerConfig {
+    schema: string;
+    url: string;
+    port: number;
+    fileURI: string;
+    validFileExtensions: string[];
     authToken: string;
+}
+
+interface SyncConfig {
+    bitburner: BitburnerConfig;
+    scriptRoot: string;
     allowDelete: boolean;
-    serverUrl: string;
 }
 
 interface ConfigResult {
@@ -16,12 +24,12 @@ interface UploadPayload {
     action: 'CREATE' | 'UPDATE' | 'UPSERT';
     filename: string;
     code: string;
-    authToken: string;
+    bitburner: BitburnerConfig;
 }
 
 interface DeletePayload {
     filename: string;
-    authToken: string;
+    bitburner: BitburnerConfig;
 }
 
 interface BitburnerFiles {

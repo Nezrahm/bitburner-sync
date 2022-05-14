@@ -1,5 +1,7 @@
 {
   "compilerOptions": {
+    "moduleResolution": "Node",
+    "strict": true
   },
   "include": [
     "typings/*",

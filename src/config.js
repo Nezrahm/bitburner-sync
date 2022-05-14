@@ -6,7 +6,25 @@ import { hideBin } from 'yargs/helpers';
 
 const configFileName = './bitburner-sync.json';
 
+/**
+ * @return {BitburnerConfig}
+ */
+const getDefaultBitburnerConfig = () => ({
+  port: 9990,
+  schema: 'http',
+  url: '127.0.0.1',
+  fileURI: '/',
+  validFileExtensions: [
+    '.js',
+    '.script',
+    '.ns',
+  ],
+  authToken: null,
+});
+
 const getConfig = () => {
+  const bitburner = getDefaultBitburnerConfig();
+
   const config = convict({
     authToken: {
       doc: 'The authorization token',
@@ -29,7 +47,7 @@ const getConfig = () => {
     serverUrl: {
       doc: 'Connect to this Url',
       format: 'String',
-      default: '127.0.0.1',
+      default: bitburner.url,
       env: 'npm_package_config_bitburnerServerUrl',
     },
   });
@@ -47,13 +65,25 @@ const getConfig = () => {
 };
 
 /**
- * The combined config and arguments
- * @returns {ConfigResult}
+ * @typedef GetParametersMixedWithConfig
+ * @type {object}
+ * @property {boolean} dryRun
+ * @property {boolean} allowDelete
+ * @property {boolean} watch
+ * @property {boolean} get
+ * @property {string} authToken
+ * @property {string} scriptRoot
+ * @property {string} serverUrl
  */
-export const getArgs = () => {
+
+/**
+ * @returns {GetParametersMixedWithConfig}
+ */
+const getParametersMixedWithConfig = () => {
   const config = getConfig();
 
-  const args = yargs(hideBin(process.argv))
+  // noinspection JSValidateTypes
+  return yargs(hideBin(process.argv))
     .strict()
     .option('scriptRoot', {
       describe: 'The local directory to sync with',
@@ -88,6 +118,14 @@ export const getArgs = () => {
       type: 'boolean',
     })
     .argv;
+};
+
+/**
+ * The combined config and arguments
+ * @returns {ConfigResult}
+ */
+export const getArgs = () => {
+  const args = getParametersMixedWithConfig();
 
   const isDryRun = !!args.dryRun;
   const allowDelete = !!args.allowDelete;
@@ -100,9 +138,12 @@ export const getArgs = () => {
 
   return {
     config: {
+      bitburner: {
+        ...getDefaultBitburnerConfig(),
+        authToken: args.authToken,
+        url: args.serverUrl,
+      },
       scriptRoot: path.resolve(process.cwd(), args.scriptRoot),
-      authToken: args.authToken,
-      serverUrl: args.serverUrl,
       allowDelete,
     },
     doWatch,

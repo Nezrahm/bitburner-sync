@@ -1,23 +1,20 @@
 import http from 'http';
 import { log } from './log.js';
 
-const bitburnerConfig = {
-  port: 9990,
-  schema: 'http',
-  url: '127.0.0.1',
-  fileURI: '/',
-  validFileExtensions: [
-    '.js',
-    '.script',
-    '.ns',
-  ],
-};
-
-export const isValidGameFile = fileURI => bitburnerConfig
+/**
+ * @param {BitburnerConfig} config
+ * @param {string} fileURI
+ * @return {boolean}
+ */
+export const isValidGameFile = (config, fileURI) => config
   .validFileExtensions
   .some(ext => fileURI.endsWith(ext));
 
-export const getGameFileGlobs = () => bitburnerConfig
+/**
+ * @param {BitburnerConfig} config
+ * @return {string[]}
+ */
+export const getGameFileGlobs = (config) => config
   .validFileExtensions
   .map(ext => `**/*${ext}`);
 
@@ -31,8 +28,7 @@ export const uploadFileToBitburner = payload => {
   sendRequestToBitburner(
     'POST',
     file.blob,
-    payload.authToken,
-    payload.serverUrl,
+    payload.bitburner,
     (res, body) => {
       switch (res.statusCode) {
         case 200:
@@ -50,17 +46,16 @@ export const uploadFileToBitburner = payload => {
 
 /**
  * Get all files from home
- * @param {string} authToken
+ * @param {BitburnerConfig} config
  * @returns {Promise<BitburnerFiles[]>}
  */
-export const getFilesFromBitburner = (authToken, serverUrl) => {
+export const getFilesFromBitburner = (config) => {
   const deferred = getDeferred();
 
   sendRequestToBitburner(
     'GET',
     '{}',
-    authToken,
-    serverUrl,
+    config,
     (res, body) => {
       if (body === 'not a script file') {
         logMessage(true, undefined, 'The bitburner client is too old for retrieval', undefined);
@@ -108,8 +103,7 @@ export const deleteFileAtBitburner = payload => {
   sendRequestToBitburner(
     'DELETE',
     file.blob,
-    payload.authToken,
-    payload.serverUrl,
+    payload.bitburner,
     (res, body) => {
       switch (res.statusCode) {
         case 200:
@@ -176,19 +170,19 @@ const logMessage = (isError, filename, message, body) => {
  * Craft a http request and send it
  * @param {'POST' | 'GET' | 'DELETE' } method
  * @param {string} blob
- * @param {string} authToken
+ * @param {BitburnerConfig} config
  * @param {sendRequestToBitburner-callback} responseHandler
  */
-const sendRequestToBitburner = (method, blob, authToken, serverUrl, responseHandler) => {
+const sendRequestToBitburner = (method, blob, config, responseHandler) => {
   const options = {
-    hostname: serverUrl || bitburnerConfig.url,
-    port: bitburnerConfig.port,
-    path: bitburnerConfig.fileURI,
+    hostname: config.url,
+    port: config.port,
+    path: config.fileURI,
     method,
     headers: {
       'Content-Type': 'application/json',
       'Content-Length': blob.length,
-      Authorization: `Bearer ${authToken}`,
+      Authorization: `Bearer ${config.authToken}`,
     },
   };
 

@@ -25,7 +25,7 @@ import { log } from './log.js';
 export const get = async (config, dryRun) => {
   assertConfig(config);
 
-  const files = await getFilesFromBitburner(config.authToken);
+  const files = await getFilesFromBitburner(config.bitburner);
   log.info(`Got ${files.length} from bitburner`);
 
   for (const file of files) {
@@ -37,7 +37,7 @@ export const get = async (config, dryRun) => {
 
   const remoteFilenames = new Set(files.map(f => f.filename));
 
-  const fileMap = getAllLocalGameFilesFromDirectory(config.scriptRoot);
+  const fileMap = getAllLocalGameFilesFromDirectory(config);
   for (const filename of fileMap.keys()) {
     if (remoteFilenames.has(filename)) continue;
 
@@ -56,7 +56,7 @@ export const get = async (config, dryRun) => {
 export const sync = async (config, dryRun) => {
   assertConfig(config);
 
-  const fileMap = getAllLocalGameFilesFromDirectory(config.scriptRoot);
+  const fileMap = getAllLocalGameFilesFromDirectory(config);
   log.info(`Found ${fileMap.size} files to sync`);
 
   for (const [filename, code] of fileMap.entries()) {
@@ -67,14 +67,13 @@ export const sync = async (config, dryRun) => {
         action: 'UPSERT',
         filename,
         code,
-        authToken: config.authToken,
-        serverUrl: config.serverUrl
+        bitburner: config.bitburner,
       });
   }
 
   if (!config.allowDelete) return;
 
-  const remoteFiles = await getFilesFromBitburner(config.authToken);
+  const remoteFiles = await getFilesFromBitburner(config.bitburner);
   for (const file of remoteFiles) {
     if (fileMap.has(cleanUpFilename(file.filename))) continue;
 
@@ -83,8 +82,7 @@ export const sync = async (config, dryRun) => {
     else
       deleteFileAtBitburner({
         filename: file.filename,
-        authToken: config.authToken,
-        serverUrl: config.serverUrl
+        bitburner: config.bitburner,
       });
   }
 };
@@ -104,22 +102,20 @@ export const watch = config => {
       action: isAdd ? 'CREATE' : 'UPDATE',
       filename,
       code: contents,
-      authToken: config.authToken,
-      serverUrl: config.serverUrl
+      bitburner: config.bitburner,
     });
   };
 
   const deleteRemoteFile = (filename) => {
     deleteFileAtBitburner({
       filename,
-      authToken: config.authToken,
-      serverUrl: config.serverUrl
+      bitburner: config.bitburner,
     });
   };
 
   const watcher = chokidar
     .watch(
-      getGameFileGlobs(),
+      getGameFileGlobs(config.bitburner),
       {
         cwd: config.scriptRoot,
         ignored: ignoredDirectories,
@@ -138,10 +134,10 @@ export const watch = config => {
  * @param {SyncConfig} config
  */
 const assertConfig = config => {
-  if (typeof config.authToken !== 'string')
+  if (typeof config.bitburner.authToken !== 'string')
     throw new Error('AuthToken must be a string');
 
-  if (config.authToken.length < 3)
+  if (config.bitburner.authToken.length < 3)
     throw new Error('AuthToken is too short');
 
   if (!isDir(config.scriptRoot))

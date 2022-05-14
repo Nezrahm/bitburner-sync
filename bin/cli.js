@@ -15,11 +15,18 @@ const main = async () => {
     await sync(config, isDryRun);
 };
 
-try {
-  await main();
-} catch (e) {
+const handleError = e => {
   const msg = e && e.message ? e.message : e;
 
-  if (msg !== undefined)
-    log.error(msg);
+  if (msg === undefined) return;
+
+  log.error(msg);
+};
+
+process.on('uncaughtException', error => handleError(error));
+
+try {
+  await main();
+} catch (error) {
+  handleError(error);
 }

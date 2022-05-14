@@ -192,6 +192,7 @@ const sendRequestToBitburner = (method, blob, config, responseHandler) => {
     res.on('end', () => responseHandler(res, body));
   });
 
+  req.on('error', error => log.error('Network exception - ' + error));
   req.write(blob);
   req.end();
 };

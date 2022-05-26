@@ -3,6 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
+import { createRequire } from 'module';
 
 const configFileName = './bitburner-sync.json';
 
@@ -82,9 +83,13 @@ const getConfig = () => {
 const getParametersMixedWithConfig = () => {
   const config = getConfig();
 
+  const require = createRequire(import.meta.url);
+  const currentVersion = require('../package.json').version;
+
   // noinspection JSValidateTypes
   return yargs(hideBin(process.argv))
     .strict()
+    .version(`bitburner-sync @ ${currentVersion}`)
     .option('scriptRoot', {
       describe: 'The local directory to sync with',
       type: 'string',

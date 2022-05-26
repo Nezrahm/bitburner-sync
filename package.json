@@ -1,6 +1,6 @@
 {
   "name": "bitburner-sync",
-  "version": "1.5.1",
+  "version": "1.5.2",
   "description": "A tool used to upload your code to the game Bitburner",
   "type": "module",
   "bin": "./bin/cli.js",

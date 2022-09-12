@@ -1,6 +1,6 @@
 {
   "name": "bitburner-sync",
-  "version": "1.5.2",
+  "version": "1.5.3",
   "description": "A tool used to upload your code to the game Bitburner",
   "type": "module",
   "bin": "./bin/cli.js",
@@ -22,13 +22,13 @@
   "author": "Nezrahm",
   "license": "ISC",
   "dependencies": {
-    "@types/yargs": "^17.0.10",
+    "@types/yargs": "^17.0.12",
     "chalk": "^5.0.1",
     "yargs": "^17.5.1",
     "chokidar": "^3.5.3",
     "convict": "^6.2.3"
   },
   "devDependencies": {
-    "eslint": "^8.16.0"
+    "eslint": "^8.23.1"
   }
 }

@@ -12,22 +12,32 @@ Install in your project via `npm install bitburner-sync`.
 
 It can also be installed as a global tool via `npm install bitburner-sync -g`.
 
-For more help around installation then look [here](https://github.com/Nezrahm/bitburner-sync/wiki/Installation)
+For more help around installation then look [here](https://github.com/Nezrahm/bitburner-sync/wiki/Installation).
 
 ## Usage
 
 Can be used from the terminal, then always prefix the calls with `npx`. Use `npx bitburner-sync --help` for full information.
 
+### Options
+The following are command line options.
+
+#### Commands
+| Option     | Description                                            |
+|------------|--------------------------------------------------------|
+| \<default> | Do a single push from scriptRoot to bitburner.         |
+| get        | Retrieve files from bitburner and store at scriptRoot. |
+| watch      | Continuously monitor the scriptRoot for changes.       |
+| help       | Displays the full help.                                |
+
+#### Parameters
+
 | Option      | Description                                                                                                                                                                                                                                 |
 |-------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | authToken   | The only required option, it can also be read from package.json. See the installation instruction above or the [VSCode extension](https://github.com/bitburner-official/bitburner-vscode) for information about how to retrieve it.         |
 | scriptRoot  | The folder that you want to sync. Defaults to the current folder. The directory node_modules is ignored but any other valid game files are synced. It's highly recommended to do a dryRun first to list all the files that would be synced. |
-| serverUrl   | The API server (game client) to connect to (defaults to a local application, 127.0.0.1)                                                                                                                                                     |
-| allowDelete | If the sync (upload and retrieve) should be allowed to delete files at the target                                                                                                                                                           |
-| get         | Retrieve files from bitburner and store at scriptRoot                                                                                                                                                                                       |
+| serverUrl   | The API server (game client) to connect to (defaults to a local application, 127.0.0.1).                                                                                                                                                    |
+| allowDelete | If the sync (upload and retrieve) should be allowed to delete files at the target.                                                                                                                                                          |
 | dryRun      | Doesn't sync the files, simply lists them in the terminal.                                                                                                                                                                                  |
-| watch       | Continuously monitor the scriptRoot for changes.                                                                                                                                                                                            |
-| help        | Displays the full help.                                                                                                                                                                                                                     |
 
 ### package.json
 
